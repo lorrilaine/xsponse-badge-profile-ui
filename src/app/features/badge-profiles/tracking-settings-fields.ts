@@ -10,7 +10,8 @@ export const TRACKING_ENABLED_FIELD = {
     title: 'Tracking Enabled',
     variable: 'TrackingStatus',
     byteLength: '1 Byte',
-    description: 'Determines whether the badge continuously sends location updates.',
+    description:
+      'A flag to indicate whether or not the badge needs to always send its location.',
     allowedValues: 'OFF (0)\nON (1)',
   } satisfies BadgeProfileFieldHelp,
 } as const
@@ -26,7 +27,7 @@ export const TRACKING_INTERVAL_FIELD = {
     variable: 'TrackingInterval',
     byteLength: '2 Bytes',
     description:
-      'Defines the interval (in seconds) between location beacon messages while continuous tracking is enabled.',
+      'This parameter dictates the length of time (in seconds) between location beacon messages for a badge which has TrackingStatus = 1.',
     allowedRange: `${TRACKING_INTERVAL_MIN}–${TRACKING_INTERVAL_MAX} seconds`,
   } satisfies BadgeProfileFieldHelp,
 } as const

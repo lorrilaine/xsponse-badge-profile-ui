@@ -7,9 +7,13 @@ import { Combobox } from '@/app/components/ui/combobox'
 import { FormField } from '@/app/components/ui/form-field'
 import {
   DEFAULT_BEACON_SETTINGS_VALUES,
+  DEFAULT_STATUS_UPDATE_SETTINGS_VALUES,
   DEFAULT_TRACKING_SETTINGS_VALUES,
+  DEFAULT_WAKEUP_SETTINGS_VALUES,
   type BeaconSettingsValues,
+  type StatusUpdateSettingsValues,
   type TrackingSettingsValues,
+  type WakeupSettingsValues,
 } from '@/app/features/badge-profiles/badge-profile-configuration-types'
 import {
   findFirstInvalidConfigurationField,
@@ -24,12 +28,24 @@ import type { BadgeProfileStatus } from '@/app/features/badge-profiles/badge-pro
 import { BadgeProfileConfigurationConsole } from '@/app/features/badge-profiles/components/BadgeProfileConfigurationConsole'
 import { BadgeProfileStatusSelect } from '@/app/features/badge-profiles/components/BadgeProfileStatusSelect'
 import { BeaconSettingsSection } from '@/app/features/badge-profiles/components/BeaconSettingsSection'
+import { StatusUpdateSettingsSection } from '@/app/features/badge-profiles/components/StatusUpdateSettingsSection'
 import { TrackingSettingsSection } from '@/app/features/badge-profiles/components/TrackingSettingsSection'
 import {
   createTouchedBeaconSettingsFields,
   getVisibleBeaconSettingsErrors,
   validateBeaconSettings,
 } from '@/app/features/badge-profiles/beacon-settings-validation'
+import {
+  createTouchedStatusUpdateSettingsFields,
+  getVisibleStatusUpdateSettingsErrors,
+  validateStatusUpdateSettings,
+} from '@/app/features/badge-profiles/status-update-settings-validation'
+import { WakeupSettingsSection } from '@/app/features/badge-profiles/components/WakeupSettingsSection'
+import {
+  createTouchedWakeupSettingsFields,
+  getVisibleWakeupSettingsErrors,
+  validateWakeupSettings,
+} from '@/app/features/badge-profiles/wakeup-settings-validation'
 import {
   createTouchedTrackingSettingsFields,
   getVisibleTrackingSettingsErrors,
@@ -109,6 +125,17 @@ export function CreateBadgeProfilePage() {
   const [trackingSettingsTouched, setTrackingSettingsTouched] = useState<
     Partial<Record<keyof TrackingSettingsValues, boolean>>
   >({})
+  const [statusUpdateSettings, setStatusUpdateSettings] =
+    useState<StatusUpdateSettingsValues>(DEFAULT_STATUS_UPDATE_SETTINGS_VALUES)
+  const [statusUpdateSettingsTouched, setStatusUpdateSettingsTouched] = useState<
+    Partial<Record<keyof StatusUpdateSettingsValues, boolean>>
+  >({})
+  const [wakeupSettings, setWakeupSettings] = useState<WakeupSettingsValues>(
+    DEFAULT_WAKEUP_SETTINGS_VALUES,
+  )
+  const [wakeupSettingsTouched, setWakeupSettingsTouched] = useState<
+    Partial<Record<keyof WakeupSettingsValues, boolean>>
+  >({})
   const [activeConfigurationSection, setActiveConfigurationSection] =
     useState<BadgeConfigurationSectionId>(DEFAULT_BADGE_CONFIGURATION_SECTION_ID)
 
@@ -120,6 +147,20 @@ export function CreateBadgeProfilePage() {
   const trackingSettingsErrors = useMemo(
     () => getVisibleTrackingSettingsErrors(trackingSettings, trackingSettingsTouched),
     [trackingSettings, trackingSettingsTouched],
+  )
+
+  const statusUpdateSettingsErrors = useMemo(
+    () =>
+      getVisibleStatusUpdateSettingsErrors(
+        statusUpdateSettings,
+        statusUpdateSettingsTouched,
+      ),
+    [statusUpdateSettings, statusUpdateSettingsTouched],
+  )
+
+  const wakeupSettingsErrors = useMemo(
+    () => getVisibleWakeupSettingsErrors(wakeupSettings, wakeupSettingsTouched),
+    [wakeupSettings, wakeupSettingsTouched],
   )
 
   function handleBeaconSettingChange(
@@ -160,6 +201,37 @@ export function CreateBadgeProfilePage() {
     }))
   }
 
+  function handleStatusUpdateSettingChange(
+    field: keyof StatusUpdateSettingsValues,
+    value: string,
+  ) {
+    setStatusUpdateSettings((current) => ({
+      ...current,
+      [field]: value,
+    }))
+  }
+
+  function handleStatusUpdateSettingBlur(field: keyof StatusUpdateSettingsValues) {
+    setStatusUpdateSettingsTouched((current) => ({
+      ...current,
+      [field]: true,
+    }))
+  }
+
+  function handleWakeupSettingChange(field: keyof WakeupSettingsValues, value: string) {
+    setWakeupSettings((current) => ({
+      ...current,
+      [field]: value,
+    }))
+  }
+
+  function handleWakeupSettingBlur(field: keyof WakeupSettingsValues) {
+    setWakeupSettingsTouched((current) => ({
+      ...current,
+      [field]: true,
+    }))
+  }
+
   function renderConfigurationSectionContent() {
     switch (activeConfigurationSection) {
       case 'beacon-settings':
@@ -181,6 +253,24 @@ export function CreateBadgeProfilePage() {
             errors={trackingSettingsErrors}
           />
         )
+      case 'status-update-settings':
+        return (
+          <StatusUpdateSettingsSection
+            values={statusUpdateSettings}
+            onChange={handleStatusUpdateSettingChange}
+            onFieldBlur={handleStatusUpdateSettingBlur}
+            errors={statusUpdateSettingsErrors}
+          />
+        )
+      case 'wakeup-settings':
+        return (
+          <WakeupSettingsSection
+            values={wakeupSettings}
+            onChange={handleWakeupSettingChange}
+            onFieldBlur={handleWakeupSettingBlur}
+            errors={wakeupSettingsErrors}
+          />
+        )
       default:
         return <ConfigurationPlaceholder />
     }
@@ -195,12 +285,24 @@ export function CreateBadgeProfilePage() {
       ...current,
       ...createTouchedTrackingSettingsFields(),
     }))
+    setStatusUpdateSettingsTouched((current) => ({
+      ...current,
+      ...createTouchedStatusUpdateSettingsFields(),
+    }))
+    setWakeupSettingsTouched((current) => ({
+      ...current,
+      ...createTouchedWakeupSettingsFields(),
+    }))
 
     const beaconErrors = validateBeaconSettings(beaconSettings)
     const trackingErrors = validateTrackingSettings(trackingSettings)
+    const statusUpdateErrors = validateStatusUpdateSettings(statusUpdateSettings)
+    const wakeupErrors = validateWakeupSettings(wakeupSettings)
     const firstInvalidField = findFirstInvalidConfigurationField(
       beaconErrors,
       trackingErrors,
+      statusUpdateErrors,
+      wakeupErrors,
     )
 
     if (!firstInvalidField) {

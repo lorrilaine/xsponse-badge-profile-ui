@@ -22,14 +22,14 @@ export const BADGE_CONFIGURATION_SECTIONS = [
     id: 'status-update-settings',
     title: 'Status Update Settings',
     navigationLabel: 'Status Update Settings',
-    description: 'Status reporting intervals.',
+    description: 'Configure badge status reporting intervals.',
     layout: 'single-column',
   },
   {
     id: 'wakeup-settings',
     title: 'Wakeup Settings',
     navigationLabel: 'Wakeup Settings',
-    description: 'Wake-up and listening timing.',
+    description: 'Configure wake-up and listening intervals.',
     layout: 'single-column',
   },
   {

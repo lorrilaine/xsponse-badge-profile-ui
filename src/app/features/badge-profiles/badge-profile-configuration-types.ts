@@ -21,3 +21,23 @@ export const DEFAULT_TRACKING_SETTINGS_VALUES: TrackingSettingsValues = {
   TrackingStatus: false,
   TrackingInterval: '',
 }
+
+export type StatusUpdateSettingsValues = {
+  StatusUpdateInterval: string
+  BatteryChargingStatusInterval: string
+}
+
+export const DEFAULT_STATUS_UPDATE_SETTINGS_VALUES: StatusUpdateSettingsValues = {
+  StatusUpdateInterval: '',
+  BatteryChargingStatusInterval: '',
+}
+
+export type WakeupSettingsValues = {
+  WakeupTimeInterval: string
+  WakeupTime: string
+}
+
+export const DEFAULT_WAKEUP_SETTINGS_VALUES: WakeupSettingsValues = {
+  WakeupTimeInterval: '',
+  WakeupTime: '',
+}

@@ -27,7 +27,7 @@ export const BEACON_SETTINGS_FIELDS: BeaconSettingsFieldDefinition[] = [
       variable: 'Alert1BeaconInterval',
       byteLength: '2 Bytes',
       description:
-        'Defines the interval (in seconds) between location beacon messages when Alert Mode 1 is active.',
+        'This parameter dictates the length of time (in seconds) between location beacon messages for a badge which has been activated in mode 1.',
       allowedRange: `${BEACON_INTERVAL_MIN}–${BEACON_INTERVAL_MAX} seconds`,
     },
   },
@@ -43,7 +43,7 @@ export const BEACON_SETTINGS_FIELDS: BeaconSettingsFieldDefinition[] = [
       variable: 'Alert2BeaconInterval',
       byteLength: '2 Bytes',
       description:
-        'Defines the interval (in seconds) between location beacon messages when Alert Mode 2 is active.',
+        'This parameter dictates the length of time (in seconds) between location beacon messages for a badge which has been activated in mode 2.',
       allowedRange: `${BEACON_INTERVAL_MIN}–${BEACON_INTERVAL_MAX} seconds`,
     },
   },
@@ -59,7 +59,7 @@ export const BEACON_SETTINGS_FIELDS: BeaconSettingsFieldDefinition[] = [
       variable: 'Alert3BeaconInterval',
       byteLength: '2 Bytes',
       description:
-        'Defines the interval (in seconds) between location beacon messages when Alert Mode 3 is active.',
+        'This parameter dictates the length of time (in seconds) between location beacon messages for a badge which has been activated in mode 3.',
       allowedRange: `${BEACON_INTERVAL_MIN}–${BEACON_INTERVAL_MAX} seconds`,
     },
   },
@@ -75,7 +75,7 @@ export const BEACON_SETTINGS_FIELDS: BeaconSettingsFieldDefinition[] = [
       variable: 'SecondaryBeaconInterval',
       byteLength: '2 Bytes',
       description:
-        'Defines the interval (in seconds) between periodic location beacon messages when the badge is not in an alert state but has been instructed to report its location.',
+        'This parameter dictates the length of time (in seconds) between location beacon messages for a badge which has not been activated but has been told to report its location periodically by the service.',
       allowedRange: `${BEACON_INTERVAL_MIN}–${BEACON_INTERVAL_MAX} seconds`,
     },
   },

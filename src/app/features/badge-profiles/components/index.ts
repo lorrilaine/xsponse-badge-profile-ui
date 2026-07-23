@@ -8,4 +8,6 @@ export { BadgeProfileFieldTooltipContent } from './BadgeProfileFieldTooltipConte
 export { BadgeProfileNumericField } from './BadgeProfileNumericField'
 export { BadgeProfileSwitchField } from './BadgeProfileSwitchField'
 export { BeaconSettingsSection } from './BeaconSettingsSection'
+export { StatusUpdateSettingsSection } from './StatusUpdateSettingsSection'
 export { TrackingSettingsSection } from './TrackingSettingsSection'
+export { WakeupSettingsSection } from './WakeupSettingsSection'
