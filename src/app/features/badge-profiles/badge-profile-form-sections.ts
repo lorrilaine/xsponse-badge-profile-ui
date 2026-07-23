@@ -83,8 +83,8 @@ export function getBadgeConfigurationSection(sectionId: BadgeConfigurationSectio
 }
 
 export const BADGE_GROUP_SELECT_OPTIONS = [
-  { value: 'BG-1001', label: 'BG-1001 - Executive Access' },
-  { value: 'BG-1002', label: 'BG-1002 - Visitor Standard' },
-  { value: 'BG-1003', label: 'BG-1003 - Contractor Limited' },
+  { value: 'BG-1001', label: 'BG-1001 - Executive Staff' },
+  { value: 'BG-1002', label: 'BG-1002 - Visitor' },
+  { value: 'BG-1003', label: 'BG-1003 - Contractor' },
   { value: 'BG-1004', label: 'BG-1004 - Emergency Response' },
 ] as const
