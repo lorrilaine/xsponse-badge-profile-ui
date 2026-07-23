@@ -11,3 +11,13 @@ export const DEFAULT_BEACON_SETTINGS_VALUES: BeaconSettingsValues = {
   Alert3BeaconInterval: '',
   SecondaryBeaconInterval: '',
 }
+
+export type TrackingSettingsValues = {
+  TrackingStatus: boolean
+  TrackingInterval: string
+}
+
+export const DEFAULT_TRACKING_SETTINGS_VALUES: TrackingSettingsValues = {
+  TrackingStatus: false,
+  TrackingInterval: '',
+}

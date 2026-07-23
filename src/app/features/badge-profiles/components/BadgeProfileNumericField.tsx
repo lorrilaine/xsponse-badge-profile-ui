@@ -18,11 +18,11 @@ type BadgeProfileNumericFieldProps = {
   help: BadgeProfileFieldHelp
   value: string
   onChange: (value: string) => void
-  min: number
-  max: number
   unit: BadgeProfileInputUnit
   required?: boolean
   error?: string
+  onBlur?: () => void
+  disabled?: boolean
   className?: string
 }
 
@@ -33,11 +33,11 @@ export function BadgeProfileNumericField({
   help,
   value,
   onChange,
-  min,
-  max,
   unit,
   required = false,
   error,
+  onBlur,
+  disabled = false,
   className,
 }: BadgeProfileNumericFieldProps) {
   return (
@@ -49,21 +49,24 @@ export function BadgeProfileNumericField({
         help={help}
       />
 
-      <InputGroup>
-        <InputGroupInput
-          id={id}
-          name={name}
-          type="number"
-          inputMode="numeric"
-          value={value}
-          min={min}
-          max={max}
-          required={required}
-          aria-invalid={Boolean(error)}
-          onChange={(event) => onChange(event.target.value)}
-        />
-        <InputGroupAddon>{unit}</InputGroupAddon>
-      </InputGroup>
+      <div className={cn(disabled && 'opacity-60')}>
+        <InputGroup>
+          <InputGroupInput
+            id={id}
+            name={name}
+            type="text"
+            inputMode="numeric"
+            autoComplete="off"
+            value={value}
+            required={required}
+            disabled={disabled}
+            aria-invalid={Boolean(error)}
+            onBlur={onBlur}
+            onChange={(event) => onChange(event.target.value)}
+          />
+          <InputGroupAddon>{unit}</InputGroupAddon>
+        </InputGroup>
+      </div>
 
       <div className="min-h-5">
         {error ? <FormMessage message={error} /> : null}

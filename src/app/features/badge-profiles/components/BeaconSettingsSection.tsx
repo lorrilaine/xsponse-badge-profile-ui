@@ -6,16 +6,18 @@ import { BadgeProfileNumericField } from '@/app/features/badge-profiles/componen
 type BeaconSettingsSectionProps = {
   values: BeaconSettingsValues
   onChange: (field: keyof BeaconSettingsValues, value: string) => void
+  onFieldBlur?: (field: keyof BeaconSettingsValues) => void
   errors?: Partial<Record<keyof BeaconSettingsValues, string>>
 }
 
 export function BeaconSettingsSection({
   values,
   onChange,
+  onFieldBlur,
   errors,
 }: BeaconSettingsSectionProps) {
   return (
-    <BadgeProfileConfigFieldGrid>
+    <BadgeProfileConfigFieldGrid layout="two-column">
       {BEACON_SETTINGS_FIELDS.map((field) => (
         <BadgeProfileNumericField
           key={field.name}
@@ -25,8 +27,7 @@ export function BeaconSettingsSection({
           help={field.help}
           value={values[field.name]}
           onChange={(value) => onChange(field.name, value)}
-          min={field.min}
-          max={field.max}
+          onBlur={() => onFieldBlur?.(field.name)}
           unit={field.unit}
           required={field.required}
           error={errors?.[field.name]}

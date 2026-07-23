@@ -1,27 +1,41 @@
-import { useState, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router'
 
 import { PageHeader } from '@/app/components/layout/PageHeader'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/app/components/ui/accordion'
 import { Button } from '@/app/components/ui/button'
 import { Combobox } from '@/app/components/ui/combobox'
 import { FormField } from '@/app/components/ui/form-field'
 import {
   DEFAULT_BEACON_SETTINGS_VALUES,
+  DEFAULT_TRACKING_SETTINGS_VALUES,
   type BeaconSettingsValues,
+  type TrackingSettingsValues,
 } from '@/app/features/badge-profiles/badge-profile-configuration-types'
 import {
-  BADGE_CONFIGURATION_SECTIONS,
+  findFirstInvalidConfigurationField,
+  getConfigurationNavigationSection,
+} from '@/app/features/badge-profiles/badge-profile-configuration-validation'
+import {
   BADGE_GROUP_SELECT_OPTIONS,
+  DEFAULT_BADGE_CONFIGURATION_SECTION_ID,
+  type BadgeConfigurationSectionId,
 } from '@/app/features/badge-profiles/badge-profile-form-sections'
 import type { BadgeProfileStatus } from '@/app/features/badge-profiles/badge-profile-mock-data'
+import { BadgeProfileConfigurationConsole } from '@/app/features/badge-profiles/components/BadgeProfileConfigurationConsole'
 import { BadgeProfileStatusSelect } from '@/app/features/badge-profiles/components/BadgeProfileStatusSelect'
 import { BeaconSettingsSection } from '@/app/features/badge-profiles/components/BeaconSettingsSection'
+import { TrackingSettingsSection } from '@/app/features/badge-profiles/components/TrackingSettingsSection'
+import {
+  createTouchedBeaconSettingsFields,
+  getVisibleBeaconSettingsErrors,
+  validateBeaconSettings,
+} from '@/app/features/badge-profiles/beacon-settings-validation'
+import {
+  createTouchedTrackingSettingsFields,
+  getVisibleTrackingSettingsErrors,
+  validateTrackingSettings,
+} from '@/app/features/badge-profiles/tracking-settings-validation'
+import { focusConfigurationField } from '@/app/features/badge-profiles/badge-profile-numeric-validation'
 import { cn } from '@/app/utils'
 
 const INPUT_CLASS_NAME =
@@ -86,6 +100,27 @@ export function CreateBadgeProfilePage() {
   const [beaconSettings, setBeaconSettings] = useState<BeaconSettingsValues>(
     DEFAULT_BEACON_SETTINGS_VALUES,
   )
+  const [beaconSettingsTouched, setBeaconSettingsTouched] = useState<
+    Partial<Record<keyof BeaconSettingsValues, boolean>>
+  >({})
+  const [trackingSettings, setTrackingSettings] = useState<TrackingSettingsValues>(
+    DEFAULT_TRACKING_SETTINGS_VALUES,
+  )
+  const [trackingSettingsTouched, setTrackingSettingsTouched] = useState<
+    Partial<Record<keyof TrackingSettingsValues, boolean>>
+  >({})
+  const [activeConfigurationSection, setActiveConfigurationSection] =
+    useState<BadgeConfigurationSectionId>(DEFAULT_BADGE_CONFIGURATION_SECTION_ID)
+
+  const beaconSettingsErrors = useMemo(
+    () => getVisibleBeaconSettingsErrors(beaconSettings, beaconSettingsTouched),
+    [beaconSettings, beaconSettingsTouched],
+  )
+
+  const trackingSettingsErrors = useMemo(
+    () => getVisibleTrackingSettingsErrors(trackingSettings, trackingSettingsTouched),
+    [trackingSettings, trackingSettingsTouched],
+  )
 
   function handleBeaconSettingChange(
     field: keyof BeaconSettingsValues,
@@ -95,6 +130,102 @@ export function CreateBadgeProfilePage() {
       ...current,
       [field]: value,
     }))
+  }
+
+  function handleBeaconSettingBlur(field: keyof BeaconSettingsValues) {
+    setBeaconSettingsTouched((current) => ({
+      ...current,
+      [field]: true,
+    }))
+  }
+
+  function handleTrackingStatusChange(enabled: boolean) {
+    setTrackingSettings((current) => ({
+      ...current,
+      TrackingStatus: enabled,
+    }))
+  }
+
+  function handleTrackingIntervalChange(value: string) {
+    setTrackingSettings((current) => ({
+      ...current,
+      TrackingInterval: value,
+    }))
+  }
+
+  function handleTrackingIntervalBlur() {
+    setTrackingSettingsTouched((current) => ({
+      ...current,
+      TrackingInterval: true,
+    }))
+  }
+
+  function renderConfigurationSectionContent() {
+    switch (activeConfigurationSection) {
+      case 'beacon-settings':
+        return (
+          <BeaconSettingsSection
+            values={beaconSettings}
+            onChange={handleBeaconSettingChange}
+            onFieldBlur={handleBeaconSettingBlur}
+            errors={beaconSettingsErrors}
+          />
+        )
+      case 'tracking-settings':
+        return (
+          <TrackingSettingsSection
+            values={trackingSettings}
+            onTrackingStatusChange={handleTrackingStatusChange}
+            onTrackingIntervalChange={handleTrackingIntervalChange}
+            onTrackingIntervalBlur={handleTrackingIntervalBlur}
+            errors={trackingSettingsErrors}
+          />
+        )
+      default:
+        return <ConfigurationPlaceholder />
+    }
+  }
+
+  function handleConfigurationSaveAttempt(): boolean {
+    setBeaconSettingsTouched((current) => ({
+      ...current,
+      ...createTouchedBeaconSettingsFields(),
+    }))
+    setTrackingSettingsTouched((current) => ({
+      ...current,
+      ...createTouchedTrackingSettingsFields(),
+    }))
+
+    const beaconErrors = validateBeaconSettings(beaconSettings)
+    const trackingErrors = validateTrackingSettings(trackingSettings)
+    const firstInvalidField = findFirstInvalidConfigurationField(
+      beaconErrors,
+      trackingErrors,
+    )
+
+    if (!firstInvalidField) {
+      return true
+    }
+
+    const navigationSection = getConfigurationNavigationSection(
+      firstInvalidField,
+    ) as BadgeConfigurationSectionId
+
+    setActiveConfigurationSection(navigationSection)
+
+    requestAnimationFrame(() => {
+      focusConfigurationField(firstInvalidField)
+    })
+
+    return false
+  }
+
+  function handleSaveDraft() {
+    handleConfigurationSaveAttempt()
+  }
+
+  function handleSaveBadgeProfile() {
+    handleConfigurationSaveAttempt()
   }
 
   return (
@@ -173,38 +304,16 @@ export function CreateBadgeProfilePage() {
 
         <FormSectionCard
           compact
-          contentClassName="pt-2"
+          contentClassName="pt-3"
           title="Badge Configuration"
-          description="Configure the firmware parameters that define badge behavior."
+          description="Firmware parameters that define badge behavior."
         >
-          <Accordion type="multiple" className="w-full space-y-1.5">
-            {BADGE_CONFIGURATION_SECTIONS.map((section) => (
-              <AccordionItem
-                key={section.id}
-                value={section.id}
-                className="rounded-md border border-border px-4"
-              >
-                <AccordionTrigger className="py-3 hover:no-underline">
-                  <span className="text-base font-semibold text-foreground">
-                    {section.title}
-                  </span>
-                </AccordionTrigger>
-                <AccordionContent className="pb-6">
-                  <p className="mb-4 text-sm text-muted-foreground">
-                    {section.description}
-                  </p>
-                  {section.id === 'beacon-settings' ? (
-                    <BeaconSettingsSection
-                      values={beaconSettings}
-                      onChange={handleBeaconSettingChange}
-                    />
-                  ) : (
-                    <ConfigurationPlaceholder />
-                  )}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+          <BadgeProfileConfigurationConsole
+            activeSectionId={activeConfigurationSection}
+            onSectionChange={setActiveConfigurationSection}
+          >
+            {renderConfigurationSectionContent()}
+          </BadgeProfileConfigurationConsole>
         </FormSectionCard>
       </div>
 
@@ -224,10 +333,16 @@ export function CreateBadgeProfilePage() {
               type="button"
               variant="outline"
               className="h-10 px-4 py-[10px]"
+              onClick={handleSaveDraft}
             >
               Save Draft
             </Button>
-            <Button type="button" variant="default" className="h-10 px-4 py-[10px]">
+            <Button
+              type="button"
+              variant="default"
+              className="h-10 px-4 py-[10px]"
+              onClick={handleSaveBadgeProfile}
+            >
               Save Badge Profile
             </Button>
           </div>

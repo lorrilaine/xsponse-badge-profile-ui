@@ -36,6 +36,7 @@ export function BadgeProfileFieldTooltipContent({
   byteLength,
   description,
   allowedRange,
+  allowedValues,
   notes,
 }: BadgeProfileFieldTooltipContentProps) {
   return (
@@ -50,7 +51,16 @@ export function BadgeProfileFieldTooltipContent({
         />
         <BadgeProfileFieldTooltipSection label="Byte Length" value={byteLength} />
         <BadgeProfileFieldTooltipSection label="Description" value={description} />
-        <BadgeProfileFieldTooltipSection label="Allowed Range" value={allowedRange} />
+        {allowedValues ? (
+          <BadgeProfileFieldTooltipSection
+            label="Allowed Values"
+            value={allowedValues}
+            valueClassName="whitespace-pre-line"
+          />
+        ) : null}
+        {allowedRange ? (
+          <BadgeProfileFieldTooltipSection label="Allowed Range" value={allowedRange} />
+        ) : null}
         {notes ? <BadgeProfileFieldTooltipSection label="Notes" value={notes} /> : null}
       </div>
     </div>

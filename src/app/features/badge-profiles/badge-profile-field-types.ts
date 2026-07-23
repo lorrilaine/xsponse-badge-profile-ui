@@ -11,8 +11,10 @@ export type BadgeProfileFieldHelp = {
   byteLength: string
   /** Field description from the Badge Profile specification. */
   description: string
-  /** Allowed values or range from the Badge Profile specification. */
-  allowedRange: string
+  /** Allowed numeric range from the Badge Profile specification. */
+  allowedRange?: string
+  /** Allowed discrete values from the Badge Profile specification. */
+  allowedValues?: string
   /**
    * Optional specification notes for special behavior or dependencies.
    * Omit when the specification defines no special rules.
