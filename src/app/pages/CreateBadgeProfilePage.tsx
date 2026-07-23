@@ -1,19 +1,11 @@
 import { useMemo, useState, type ReactNode } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 
 import { PageHeader } from '@/app/components/layout/PageHeader'
 import { Button } from '@/app/components/ui/button'
 import { Combobox } from '@/app/components/ui/combobox'
 import { FormField } from '@/app/components/ui/form-field'
 import {
-  DEFAULT_ALERT_MODE_1_SETTINGS_VALUES,
-  DEFAULT_ALERT_MODE_2_SETTINGS_VALUES,
-  DEFAULT_ALERT_MODE_3_SETTINGS_VALUES,
-  DEFAULT_BEACON_SETTINGS_VALUES,
-  DEFAULT_CLEAR_BUTTON_SETTINGS_VALUES,
-  DEFAULT_STATUS_UPDATE_SETTINGS_VALUES,
-  DEFAULT_TRACKING_SETTINGS_VALUES,
-  DEFAULT_WAKEUP_SETTINGS_VALUES,
   type AlertMode1SettingsValues,
   type AlertMode2SettingsValues,
   type AlertMode3SettingsValues,
@@ -33,6 +25,12 @@ import {
   type BadgeConfigurationSectionId,
 } from '@/app/features/badge-profiles/badge-profile-form-sections'
 import type { BadgeProfileStatus } from '@/app/features/badge-profiles/badge-profile-mock-data'
+import {
+  createDefaultBadgeProfileFormValues,
+  getBadgeProfileFormValuesFromDetail,
+  type BadgeProfileDetail,
+} from '@/app/features/badge-profiles/badge-profile-store-data'
+import { useBadgeProfiles } from '@/app/features/badge-profiles/BadgeProfileProvider'
 import { BadgeProfileConfigurationConsole } from '@/app/features/badge-profiles/components/BadgeProfileConfigurationConsole'
 import { BadgeProfileStatusSelect } from '@/app/features/badge-profiles/components/BadgeProfileStatusSelect'
 import { AlertMode1SettingsSection } from '@/app/features/badge-profiles/components/AlertMode1SettingsSection'
@@ -95,6 +93,16 @@ const TEXTAREA_CLASS_NAME =
 const READONLY_INPUT_CLASS_NAME =
   'flex h-10 w-full cursor-not-allowed rounded-md border border-input bg-muted/40 px-3 py-2 text-sm text-muted-foreground shadow-sm outline-none placeholder:text-muted-foreground/80'
 
+const MOCK_SAVE_DELAY_MS = 800
+
+function getInitialFormState(profile?: BadgeProfileDetail) {
+  if (!profile) {
+    return createDefaultBadgeProfileFormValues()
+  }
+
+  return getBadgeProfileFormValuesFromDetail(profile)
+}
+
 function FormSectionCard({
   title,
   description,
@@ -141,53 +149,63 @@ function ConfigurationPlaceholder() {
 
 export function CreateBadgeProfilePage() {
   const navigate = useNavigate()
-  const [profileName, setProfileName] = useState('')
-  const [badgeGroupId, setBadgeGroupId] = useState('')
-  const [description, setDescription] = useState('')
-  const [status, setStatus] = useState<BadgeProfileStatus>('Draft')
+  const { profileId } = useParams()
+  const isEditMode = Boolean(profileId)
+  const { getProfileById, saveProfile } = useBadgeProfiles()
+  const existingProfile = profileId ? getProfileById(profileId) : undefined
+  const initialFormState = useMemo(
+    () => getInitialFormState(existingProfile),
+    [existingProfile],
+  )
+
+  const [profileName, setProfileName] = useState(initialFormState.profileName)
+  const [badgeGroupId, setBadgeGroupId] = useState(initialFormState.badgeGroupId)
+  const [description, setDescription] = useState(initialFormState.description)
+  const [status, setStatus] = useState<BadgeProfileStatus>(initialFormState.status)
+  const [isSaving, setIsSaving] = useState(false)
   const [beaconSettings, setBeaconSettings] = useState<BeaconSettingsValues>(
-    DEFAULT_BEACON_SETTINGS_VALUES,
+    initialFormState.beaconSettings,
   )
   const [beaconSettingsTouched, setBeaconSettingsTouched] = useState<
     Partial<Record<keyof BeaconSettingsValues, boolean>>
   >({})
   const [trackingSettings, setTrackingSettings] = useState<TrackingSettingsValues>(
-    DEFAULT_TRACKING_SETTINGS_VALUES,
+    initialFormState.trackingSettings,
   )
   const [trackingSettingsTouched, setTrackingSettingsTouched] = useState<
     Partial<Record<keyof TrackingSettingsValues, boolean>>
   >({})
   const [statusUpdateSettings, setStatusUpdateSettings] =
-    useState<StatusUpdateSettingsValues>(DEFAULT_STATUS_UPDATE_SETTINGS_VALUES)
+    useState<StatusUpdateSettingsValues>(initialFormState.statusUpdateSettings)
   const [statusUpdateSettingsTouched, setStatusUpdateSettingsTouched] = useState<
     Partial<Record<keyof StatusUpdateSettingsValues, boolean>>
   >({})
   const [wakeupSettings, setWakeupSettings] = useState<WakeupSettingsValues>(
-    DEFAULT_WAKEUP_SETTINGS_VALUES,
+    initialFormState.wakeupSettings,
   )
   const [wakeupSettingsTouched, setWakeupSettingsTouched] = useState<
     Partial<Record<keyof WakeupSettingsValues, boolean>>
   >({})
   const [alertMode1Settings, setAlertMode1Settings] = useState<AlertMode1SettingsValues>(
-    DEFAULT_ALERT_MODE_1_SETTINGS_VALUES,
+    initialFormState.alertMode1Settings,
   )
   const [alertMode1SettingsTouched, setAlertMode1SettingsTouched] = useState<
     Partial<Record<keyof AlertMode1SettingsValues, boolean>>
   >({})
   const [alertMode2Settings, setAlertMode2Settings] = useState<AlertMode2SettingsValues>(
-    DEFAULT_ALERT_MODE_2_SETTINGS_VALUES,
+    initialFormState.alertMode2Settings,
   )
   const [alertMode2SettingsTouched, setAlertMode2SettingsTouched] = useState<
     Partial<Record<keyof AlertMode2SettingsValues, boolean>>
   >({})
   const [alertMode3Settings, setAlertMode3Settings] = useState<AlertMode3SettingsValues>(
-    DEFAULT_ALERT_MODE_3_SETTINGS_VALUES,
+    initialFormState.alertMode3Settings,
   )
   const [alertMode3SettingsTouched, setAlertMode3SettingsTouched] = useState<
     Partial<Record<keyof AlertMode3SettingsValues, boolean>>
   >({})
   const [clearButtonSettings, setClearButtonSettings] = useState<ClearButtonSettingsValues>(
-    DEFAULT_CLEAR_BUTTON_SETTINGS_VALUES,
+    initialFormState.clearButtonSettings,
   )
   const [clearButtonSettingsTouched, setClearButtonSettingsTouched] = useState<
     Partial<Record<keyof ClearButtonSettingsValues, boolean>>
@@ -606,12 +624,88 @@ export function CreateBadgeProfilePage() {
     return false
   }
 
+  function persistBadgeProfile() {
+    if (isSaving) {
+      return
+    }
+
+    setIsSaving(true)
+
+    // TODO: Replace mock persistence with Badge Profile API integration.
+    saveProfile({
+      id: isEditMode ? profileId : undefined,
+      profileName,
+      badgeGroupId,
+      description,
+      status,
+      beaconSettings,
+      trackingSettings,
+      statusUpdateSettings,
+      wakeupSettings,
+      alertMode1Settings,
+      alertMode2Settings,
+      alertMode3Settings,
+      clearButtonSettings,
+    })
+
+    window.setTimeout(() => {
+      navigate('/badge-profiles', {
+        state: isEditMode
+          ? { showBadgeProfileUpdatedToast: true }
+          : { showBadgeProfileSavedToast: true },
+      })
+    }, MOCK_SAVE_DELAY_MS)
+  }
+
   function handleSaveDraft() {
-    handleConfigurationSaveAttempt()
+    if (!handleConfigurationSaveAttempt()) {
+      return
+    }
+
+    persistBadgeProfile()
   }
 
   function handleSaveBadgeProfile() {
-    handleConfigurationSaveAttempt()
+    if (!handleConfigurationSaveAttempt()) {
+      return
+    }
+
+    persistBadgeProfile()
+  }
+
+  const saveButtonLabel = isEditMode ? 'Update Badge Profile' : 'Save Badge Profile'
+  const savingButtonLabel = isEditMode ? 'Updating...' : 'Saving...'
+  const badgeProfileId = initialFormState.badgeProfileId
+
+  if (isEditMode && !existingProfile) {
+    return (
+      <main>
+        <Link
+          to="/badge-profiles"
+          className="mb-2 inline-flex items-center text-sm font-medium text-primary transition-colors hover:text-primary/80"
+        >
+          ← Back to Badge Profiles
+        </Link>
+
+        <PageHeader
+          className="gap-2"
+          title="Edit Badge Profile"
+          description="Create and configure a badge profile used by XSPONSE wearable badges. The profile settings will be serialized into the badge configuration payload after saving."
+        />
+
+        <div className="mt-3 rounded-md border border-border bg-card p-6">
+          <p className="text-sm text-muted-foreground">Badge profile not found.</p>
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-4"
+            onClick={() => navigate('/badge-profiles')}
+          >
+            Back to Badge Profiles
+          </Button>
+        </div>
+      </main>
+    )
   }
 
   return (
@@ -625,7 +719,7 @@ export function CreateBadgeProfilePage() {
 
       <PageHeader
         className="gap-2"
-        title="Create Badge Profile"
+        title={isEditMode ? 'Edit Badge Profile' : 'Create Badge Profile'}
         description="Create and configure a badge profile used by XSPONSE wearable badges. The profile settings will be serialized into the badge configuration payload after saving."
       />
 
@@ -669,7 +763,7 @@ export function CreateBadgeProfilePage() {
                 type="text"
                 disabled
                 readOnly
-                value=""
+                value={badgeProfileId}
                 placeholder="Automatically generated after saving."
                 className={READONLY_INPUT_CLASS_NAME}
               />
@@ -719,6 +813,7 @@ export function CreateBadgeProfilePage() {
               type="button"
               variant="outline"
               className="h-10 px-4 py-[10px]"
+              disabled={isSaving}
               onClick={handleSaveDraft}
             >
               Save Draft
@@ -727,9 +822,10 @@ export function CreateBadgeProfilePage() {
               type="button"
               variant="default"
               className="h-10 px-4 py-[10px]"
+              disabled={isSaving}
               onClick={handleSaveBadgeProfile}
             >
-              Save Badge Profile
+              {isSaving ? savingButtonLabel : saveButtonLabel}
             </Button>
           </div>
         </div>

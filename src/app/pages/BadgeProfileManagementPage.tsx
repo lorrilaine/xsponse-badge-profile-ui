@@ -1,5 +1,5 @@
-import { Link } from 'react-router'
-import { useMemo, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router'
+import { useEffect, useMemo, useState } from 'react'
 import {
   ChevronLeft,
   ChevronRight,
@@ -31,10 +31,10 @@ import {
   BADGE_GROUP_FILTER_OPTIONS,
   BADGE_PROFILE_STATUS_FILTER_OPTIONS,
   filterBadgeProfiles,
-  MOCK_BADGE_PROFILES,
   type BadgeProfileRecord,
   type BadgeProfileStatus,
 } from '@/app/features/badge-profiles/badge-profile-mock-data'
+import { useBadgeProfiles } from '@/app/features/badge-profiles/BadgeProfileProvider'
 import { DEFAULT_BADGE_PROFILE_PERMISSIONS } from '@/app/features/badge-profiles/badge-profile-permissions'
 import { BadgeProfileAssignedBadgesDialog } from '@/app/features/badge-profiles/components/BadgeProfileAssignedBadgesDialog'
 import { BadgeProfileAssignDialog } from '@/app/features/badge-profiles/components/BadgeProfileAssignDialog'
@@ -117,9 +117,11 @@ function LastModifiedCell({ profile }: { profile: BadgeProfileRecord }) {
 }
 
 export function BadgeProfileManagementPage() {
+  const location = useLocation()
+  const navigate = useNavigate()
   const { showToast } = useToast()
+  const { profiles, deleteProfile } = useBadgeProfiles()
   const badgeProfilePermissions = DEFAULT_BADGE_PROFILE_PERMISSIONS
-  const [profiles, setProfiles] = useState<BadgeProfileRecord[]>(MOCK_BADGE_PROFILES)
   const [searchQuery, setSearchQuery] = useState('')
   const [badgeGroupFilter, setBadgeGroupFilter] = useState<string>(
     BADGE_GROUP_FILTER_OPTIONS[0],
@@ -130,7 +132,8 @@ export function BadgeProfileManagementPage() {
   const [assignedBadgesProfile, setAssignedBadgesProfile] =
     useState<BadgeProfileRecord | null>(null)
   const [assignProfile, setAssignProfile] = useState<BadgeProfileRecord | null>(null)
-  const [deleteProfile, setDeleteProfile] = useState<BadgeProfileRecord | null>(null)
+  const [deleteTargetProfile, setDeleteTargetProfile] =
+    useState<BadgeProfileRecord | null>(null)
 
   const filteredProfiles = useMemo(
     () =>
@@ -138,9 +141,38 @@ export function BadgeProfileManagementPage() {
     [badgeGroupFilter, profiles, searchQuery, statusFilter],
   )
 
+  useEffect(() => {
+    const state = location.state as
+      | {
+          showBadgeProfileSavedToast?: boolean
+          showBadgeProfileUpdatedToast?: boolean
+        }
+      | null
+
+    if (state?.showBadgeProfileSavedToast) {
+      showToast('Badge profile saved successfully.')
+    } else if (state?.showBadgeProfileUpdatedToast) {
+      showToast('Badge profile updated successfully.')
+    } else {
+      return
+    }
+
+    navigate(
+      {
+        pathname: location.pathname,
+        search: location.search,
+      },
+      { replace: true, state: null },
+    )
+  }, [location.pathname, location.search, location.state, navigate, showToast])
+
   function handleDeleteProfile(profileId: string) {
-    setProfiles((current) => current.filter((profile) => profile.id !== profileId))
+    deleteProfile(profileId)
     showToast('The selected badge profile was removed from the list.')
+  }
+
+  function handleEditProfile(profile: BadgeProfileRecord) {
+    navigate(`/badge-profiles/${profile.id}/edit`)
   }
 
   return (
@@ -299,17 +331,13 @@ export function BadgeProfileManagementPage() {
                       <td className="whitespace-nowrap px-3 py-3 align-middle">
                         <StatusBadge status={profile.status} />
                       </td>
-                      <td className="whitespace-nowrap px-3 py-3 align-middle">
+                      <td className="whitespace-nowrap p-1 align-middle">
                         <BadgeProfileManagementActions
                           profile={profile}
                           permissions={badgeProfilePermissions}
-                          onEdit={() =>
-                            showToast(
-                              `${profile.profileName} edit workflow will open when the edit route is connected.`,
-                            )
-                          }
+                          onEdit={handleEditProfile}
                           onAssign={() => setAssignProfile(profile)}
-                          onDelete={() => setDeleteProfile(profile)}
+                          onDelete={() => setDeleteTargetProfile(profile)}
                         />
                       </td>
                     </tr>
@@ -386,11 +414,11 @@ export function BadgeProfileManagementPage() {
         />
 
         <BadgeProfileDeleteDialog
-          profile={deleteProfile}
-          open={deleteProfile != null}
+          profile={deleteTargetProfile}
+          open={deleteTargetProfile != null}
           onOpenChange={(open) => {
             if (!open) {
-              setDeleteProfile(null)
+              setDeleteTargetProfile(null)
             }
           }}
           onConfirmDelete={handleDeleteProfile}
