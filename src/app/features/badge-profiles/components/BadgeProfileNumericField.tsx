@@ -8,6 +8,7 @@ import type {
   BadgeProfileFieldHelp,
   BadgeProfileInputUnit,
 } from '@/app/features/badge-profiles/badge-profile-field-types'
+import { handleBadgeProfileIntegerInputKeyDown } from '@/app/features/badge-profiles/badge-profile-integer-input'
 import { BadgeProfileFieldLabel } from '@/app/features/badge-profiles/components/BadgeProfileFieldLabel'
 import { cn } from '@/app/utils'
 
@@ -57,11 +58,13 @@ export function BadgeProfileNumericField({
             type="text"
             inputMode="numeric"
             autoComplete="off"
+            pattern="[0-9]*"
             value={value}
             required={required}
             disabled={disabled}
             aria-invalid={Boolean(error)}
             onBlur={onBlur}
+            onKeyDown={handleBadgeProfileIntegerInputKeyDown}
             onChange={(event) => onChange(event.target.value)}
           />
           <InputGroupAddon>{unit}</InputGroupAddon>
