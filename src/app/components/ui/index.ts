@@ -73,6 +73,7 @@ export {
 export { EmptyState } from './empty-state'
 export { FormField, FormMessage } from './form-field'
 export { Input } from './input'
+export { InputGroup, InputGroupAddon, InputGroupInput } from './input-group'
 export { Label } from './label'
 export {
   Pagination,

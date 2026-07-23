@@ -1,3 +1,4 @@
+import { Link } from 'react-router'
 import type { ReactNode } from 'react'
 import { useMemo, useState } from 'react'
 import {
@@ -181,9 +182,11 @@ export function BadgeProfileManagementPage() {
         </div>
 
         <div className="col-span-12 flex items-end md:col-span-3 lg:col-span-3">
-          <Button type="button" variant="default" className="h-10 gap-2" disabled>
-            <Plus className="size-4" />
-            Add Badge Profile
+          <Button type="button" variant="default" className="h-10 gap-2" asChild>
+            <Link to="/badge-profiles/create">
+              <Plus className="size-4" />
+              Add Badge Profile
+            </Link>
           </Button>
         </div>
       </div>

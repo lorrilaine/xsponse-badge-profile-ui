@@ -4,6 +4,7 @@ import { AdminLayout } from '@/app/components/layout'
 import { ToastProvider } from '@/app/components/ui/toast'
 import { TooltipProvider } from '@/app/components/ui/tooltip'
 import { BadgeProfileManagementPage } from '@/app/pages/BadgeProfileManagementPage'
+import { CreateBadgeProfilePage } from '@/app/pages/CreateBadgeProfilePage'
 import { DashboardPage } from '@/app/pages/DashboardPage'
 import { EmptyContentPage } from '@/app/pages/EmptyContentPage'
 
@@ -20,6 +21,7 @@ export function AppRouter() {
               <Route path="update-manager" element={<EmptyContentPage />} />
               <Route path="e-mapping" element={<EmptyContentPage />} />
               <Route path="badge-profiles" element={<BadgeProfileManagementPage />} />
+              <Route path="badge-profiles/create" element={<CreateBadgeProfilePage />} />
               <Route path="logs-history" element={<EmptyContentPage />} />
               <Route path="releases/release-notes" element={<EmptyContentPage />} />
               <Route path="help-support" element={<EmptyContentPage />} />
