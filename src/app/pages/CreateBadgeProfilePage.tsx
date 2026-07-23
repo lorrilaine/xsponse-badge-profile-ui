@@ -6,11 +6,19 @@ import { Button } from '@/app/components/ui/button'
 import { Combobox } from '@/app/components/ui/combobox'
 import { FormField } from '@/app/components/ui/form-field'
 import {
+  DEFAULT_ALERT_MODE_1_SETTINGS_VALUES,
+  DEFAULT_ALERT_MODE_2_SETTINGS_VALUES,
+  DEFAULT_ALERT_MODE_3_SETTINGS_VALUES,
   DEFAULT_BEACON_SETTINGS_VALUES,
+  DEFAULT_CLEAR_BUTTON_SETTINGS_VALUES,
   DEFAULT_STATUS_UPDATE_SETTINGS_VALUES,
   DEFAULT_TRACKING_SETTINGS_VALUES,
   DEFAULT_WAKEUP_SETTINGS_VALUES,
+  type AlertMode1SettingsValues,
+  type AlertMode2SettingsValues,
+  type AlertMode3SettingsValues,
   type BeaconSettingsValues,
+  type ClearButtonSettingsValues,
   type StatusUpdateSettingsValues,
   type TrackingSettingsValues,
   type WakeupSettingsValues,
@@ -27,9 +35,33 @@ import {
 import type { BadgeProfileStatus } from '@/app/features/badge-profiles/badge-profile-mock-data'
 import { BadgeProfileConfigurationConsole } from '@/app/features/badge-profiles/components/BadgeProfileConfigurationConsole'
 import { BadgeProfileStatusSelect } from '@/app/features/badge-profiles/components/BadgeProfileStatusSelect'
+import { AlertMode1SettingsSection } from '@/app/features/badge-profiles/components/AlertMode1SettingsSection'
+import { AlertMode2SettingsSection } from '@/app/features/badge-profiles/components/AlertMode2SettingsSection'
+import { AlertMode3SettingsSection } from '@/app/features/badge-profiles/components/AlertMode3SettingsSection'
 import { BeaconSettingsSection } from '@/app/features/badge-profiles/components/BeaconSettingsSection'
+import { ClearButtonSettingsSection } from '@/app/features/badge-profiles/components/ClearButtonSettingsSection'
 import { StatusUpdateSettingsSection } from '@/app/features/badge-profiles/components/StatusUpdateSettingsSection'
 import { TrackingSettingsSection } from '@/app/features/badge-profiles/components/TrackingSettingsSection'
+import {
+  createTouchedAlertMode1SettingsFields,
+  getVisibleAlertMode1SettingsErrors,
+  validateAlertMode1Settings,
+} from '@/app/features/badge-profiles/alert-mode-1-settings-validation'
+import {
+  createTouchedAlertMode2SettingsFields,
+  getVisibleAlertMode2SettingsErrors,
+  validateAlertMode2Settings,
+} from '@/app/features/badge-profiles/alert-mode-2-settings-validation'
+import {
+  createTouchedAlertMode3SettingsFields,
+  getVisibleAlertMode3SettingsErrors,
+  validateAlertMode3Settings,
+} from '@/app/features/badge-profiles/alert-mode-3-settings-validation'
+import {
+  createTouchedClearButtonSettingsFields,
+  getVisibleClearButtonSettingsErrors,
+  validateClearButtonSettings,
+} from '@/app/features/badge-profiles/clear-button-settings-validation'
 import {
   createTouchedBeaconSettingsFields,
   getVisibleBeaconSettingsErrors,
@@ -136,6 +168,30 @@ export function CreateBadgeProfilePage() {
   const [wakeupSettingsTouched, setWakeupSettingsTouched] = useState<
     Partial<Record<keyof WakeupSettingsValues, boolean>>
   >({})
+  const [alertMode1Settings, setAlertMode1Settings] = useState<AlertMode1SettingsValues>(
+    DEFAULT_ALERT_MODE_1_SETTINGS_VALUES,
+  )
+  const [alertMode1SettingsTouched, setAlertMode1SettingsTouched] = useState<
+    Partial<Record<keyof AlertMode1SettingsValues, boolean>>
+  >({})
+  const [alertMode2Settings, setAlertMode2Settings] = useState<AlertMode2SettingsValues>(
+    DEFAULT_ALERT_MODE_2_SETTINGS_VALUES,
+  )
+  const [alertMode2SettingsTouched, setAlertMode2SettingsTouched] = useState<
+    Partial<Record<keyof AlertMode2SettingsValues, boolean>>
+  >({})
+  const [alertMode3Settings, setAlertMode3Settings] = useState<AlertMode3SettingsValues>(
+    DEFAULT_ALERT_MODE_3_SETTINGS_VALUES,
+  )
+  const [alertMode3SettingsTouched, setAlertMode3SettingsTouched] = useState<
+    Partial<Record<keyof AlertMode3SettingsValues, boolean>>
+  >({})
+  const [clearButtonSettings, setClearButtonSettings] = useState<ClearButtonSettingsValues>(
+    DEFAULT_CLEAR_BUTTON_SETTINGS_VALUES,
+  )
+  const [clearButtonSettingsTouched, setClearButtonSettingsTouched] = useState<
+    Partial<Record<keyof ClearButtonSettingsValues, boolean>>
+  >({})
   const [activeConfigurationSection, setActiveConfigurationSection] =
     useState<BadgeConfigurationSectionId>(DEFAULT_BADGE_CONFIGURATION_SECTION_ID)
 
@@ -161,6 +217,27 @@ export function CreateBadgeProfilePage() {
   const wakeupSettingsErrors = useMemo(
     () => getVisibleWakeupSettingsErrors(wakeupSettings, wakeupSettingsTouched),
     [wakeupSettings, wakeupSettingsTouched],
+  )
+
+  const alertMode1SettingsErrors = useMemo(
+    () => getVisibleAlertMode1SettingsErrors(alertMode1Settings, alertMode1SettingsTouched),
+    [alertMode1Settings, alertMode1SettingsTouched],
+  )
+
+  const alertMode2SettingsErrors = useMemo(
+    () => getVisibleAlertMode2SettingsErrors(alertMode2Settings, alertMode2SettingsTouched),
+    [alertMode2Settings, alertMode2SettingsTouched],
+  )
+
+  const alertMode3SettingsErrors = useMemo(
+    () => getVisibleAlertMode3SettingsErrors(alertMode3Settings, alertMode3SettingsTouched),
+    [alertMode3Settings, alertMode3SettingsTouched],
+  )
+
+  const clearButtonSettingsErrors = useMemo(
+    () =>
+      getVisibleClearButtonSettingsErrors(clearButtonSettings, clearButtonSettingsTouched),
+    [clearButtonSettings, clearButtonSettingsTouched],
   )
 
   function handleBeaconSettingChange(
@@ -232,6 +309,145 @@ export function CreateBadgeProfilePage() {
     }))
   }
 
+  function handleAlertMode1EnabledChange(enabled: boolean) {
+    setAlertMode1Settings((current) => ({
+      ...current,
+      Alert1ButtonSettingEnabled: enabled,
+    }))
+  }
+
+  function handleAlertMode1TypeChange(value: string) {
+    setAlertMode1Settings((current) => ({
+      ...current,
+      Alert1ButtonSettingType: value,
+    }))
+  }
+
+  function handleAlertMode1NumericChange(
+    field:
+      | 'Alert1ButtonSettingButtonPress'
+      | 'Alert1ButtonSettingLED'
+      | 'Alert1ButtonSettingHaptic'
+      | 'Alert1ButtonSettingDuration',
+    value: string,
+  ) {
+    setAlertMode1Settings((current) => ({
+      ...current,
+      [field]: value,
+    }))
+  }
+
+  function handleAlertMode1FieldBlur(field: keyof AlertMode1SettingsValues) {
+    setAlertMode1SettingsTouched((current) => ({
+      ...current,
+      [field]: true,
+    }))
+  }
+
+  function handleAlertMode2EnabledChange(enabled: boolean) {
+    setAlertMode2Settings((current) => ({
+      ...current,
+      Alert2ButtonSettingEnabled: enabled,
+    }))
+  }
+
+  function handleAlertMode2TypeChange(value: string) {
+    setAlertMode2Settings((current) => ({
+      ...current,
+      Alert2ButtonSettingType: value,
+    }))
+  }
+
+  function handleAlertMode2NumericChange(
+    field:
+      | 'Alert2ButtonSettingButtonPress'
+      | 'Alert2ButtonSettingLED'
+      | 'Alert2ButtonSettingHaptic'
+      | 'Alert2ButtonSettingDuration',
+    value: string,
+  ) {
+    setAlertMode2Settings((current) => ({
+      ...current,
+      [field]: value,
+    }))
+  }
+
+  function handleAlertMode2FieldBlur(field: keyof AlertMode2SettingsValues) {
+    setAlertMode2SettingsTouched((current) => ({
+      ...current,
+      [field]: true,
+    }))
+  }
+
+  function handleAlertMode3EnabledChange(enabled: boolean) {
+    setAlertMode3Settings((current) => ({
+      ...current,
+      Alert3ButtonSettingEnabled: enabled,
+    }))
+  }
+
+  function handleAlertMode3TypeChange(value: string) {
+    setAlertMode3Settings((current) => ({
+      ...current,
+      Alert3ButtonSettingType: value,
+    }))
+  }
+
+  function handleAlertMode3NumericChange(
+    field:
+      | 'Alert3ButtonSettingButtonPress'
+      | 'Alert3ButtonSettingLED'
+      | 'Alert3ButtonSettingHaptic'
+      | 'Alert3ButtonSettingDuration',
+    value: string,
+  ) {
+    setAlertMode3Settings((current) => ({
+      ...current,
+      [field]: value,
+    }))
+  }
+
+  function handleAlertMode3FieldBlur(field: keyof AlertMode3SettingsValues) {
+    setAlertMode3SettingsTouched((current) => ({
+      ...current,
+      [field]: true,
+    }))
+  }
+
+  function handleClearButtonEnabledChange(enabled: boolean) {
+    setClearButtonSettings((current) => ({
+      ...current,
+      ClearButtonSettingEnabled: enabled,
+    }))
+  }
+
+  function handleClearButtonTypeChange(value: string) {
+    setClearButtonSettings((current) => ({
+      ...current,
+      ClearButtonSettingType: value,
+    }))
+  }
+
+  function handleClearButtonNumericChange(
+    field:
+      | 'ClearButtonSettingButtonPress'
+      | 'ClearButtonSettingLED'
+      | 'ClearButtonSettingHaptic',
+    value: string,
+  ) {
+    setClearButtonSettings((current) => ({
+      ...current,
+      [field]: value,
+    }))
+  }
+
+  function handleClearButtonFieldBlur(field: keyof ClearButtonSettingsValues) {
+    setClearButtonSettingsTouched((current) => ({
+      ...current,
+      [field]: true,
+    }))
+  }
+
   function renderConfigurationSectionContent() {
     switch (activeConfigurationSection) {
       case 'beacon-settings':
@@ -271,6 +487,50 @@ export function CreateBadgeProfilePage() {
             errors={wakeupSettingsErrors}
           />
         )
+      case 'alert-mode-1':
+        return (
+          <AlertMode1SettingsSection
+            values={alertMode1Settings}
+            onEnabledChange={handleAlertMode1EnabledChange}
+            onTypeChange={handleAlertMode1TypeChange}
+            onNumericChange={handleAlertMode1NumericChange}
+            onFieldBlur={handleAlertMode1FieldBlur}
+            errors={alertMode1SettingsErrors}
+          />
+        )
+      case 'alert-mode-2':
+        return (
+          <AlertMode2SettingsSection
+            values={alertMode2Settings}
+            onEnabledChange={handleAlertMode2EnabledChange}
+            onTypeChange={handleAlertMode2TypeChange}
+            onNumericChange={handleAlertMode2NumericChange}
+            onFieldBlur={handleAlertMode2FieldBlur}
+            errors={alertMode2SettingsErrors}
+          />
+        )
+      case 'alert-mode-3':
+        return (
+          <AlertMode3SettingsSection
+            values={alertMode3Settings}
+            onEnabledChange={handleAlertMode3EnabledChange}
+            onTypeChange={handleAlertMode3TypeChange}
+            onNumericChange={handleAlertMode3NumericChange}
+            onFieldBlur={handleAlertMode3FieldBlur}
+            errors={alertMode3SettingsErrors}
+          />
+        )
+      case 'clear-button':
+        return (
+          <ClearButtonSettingsSection
+            values={clearButtonSettings}
+            onEnabledChange={handleClearButtonEnabledChange}
+            onTypeChange={handleClearButtonTypeChange}
+            onNumericChange={handleClearButtonNumericChange}
+            onFieldBlur={handleClearButtonFieldBlur}
+            errors={clearButtonSettingsErrors}
+          />
+        )
       default:
         return <ConfigurationPlaceholder />
     }
@@ -293,16 +553,40 @@ export function CreateBadgeProfilePage() {
       ...current,
       ...createTouchedWakeupSettingsFields(),
     }))
+    setAlertMode1SettingsTouched((current) => ({
+      ...current,
+      ...createTouchedAlertMode1SettingsFields(),
+    }))
+    setAlertMode2SettingsTouched((current) => ({
+      ...current,
+      ...createTouchedAlertMode2SettingsFields(),
+    }))
+    setAlertMode3SettingsTouched((current) => ({
+      ...current,
+      ...createTouchedAlertMode3SettingsFields(),
+    }))
+    setClearButtonSettingsTouched((current) => ({
+      ...current,
+      ...createTouchedClearButtonSettingsFields(),
+    }))
 
     const beaconErrors = validateBeaconSettings(beaconSettings)
     const trackingErrors = validateTrackingSettings(trackingSettings)
     const statusUpdateErrors = validateStatusUpdateSettings(statusUpdateSettings)
     const wakeupErrors = validateWakeupSettings(wakeupSettings)
+    const alertMode1Errors = validateAlertMode1Settings(alertMode1Settings)
+    const alertMode2Errors = validateAlertMode2Settings(alertMode2Settings)
+    const alertMode3Errors = validateAlertMode3Settings(alertMode3Settings)
+    const clearButtonErrors = validateClearButtonSettings(clearButtonSettings)
     const firstInvalidField = findFirstInvalidConfigurationField(
       beaconErrors,
       trackingErrors,
       statusUpdateErrors,
       wakeupErrors,
+      alertMode1Errors,
+      alertMode2Errors,
+      alertMode3Errors,
+      clearButtonErrors,
     )
 
     if (!firstInvalidField) {

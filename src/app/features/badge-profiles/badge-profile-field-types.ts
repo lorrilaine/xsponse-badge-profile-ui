@@ -28,6 +28,8 @@ export type BadgeProfileInputUnit =
   | 'presses'
   | 'times'
   | 'bytes'
+  | 'flashes'
+  | 'activations'
 
 /** Consistent documentation-card width for all Badge Profile field tooltips. */
 export const BADGE_PROFILE_TOOLTIP_WIDTH_CLASSNAME =
