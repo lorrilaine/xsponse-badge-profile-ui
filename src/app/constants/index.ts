@@ -1,1 +1,1 @@
-export { APP_NAME, ADMIN_NAVIGATION } from './navigation'
+export { APP_NAME, ADMIN_NAVIGATION, LOGGED_IN_ROLE, PRIMARY_NAVIGATION } from './navigation'

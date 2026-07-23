@@ -1,63 +1,88 @@
-import {
-  BadgeCheck,
-  Gauge,
-  MapPinned,
-  MonitorSmartphone,
-  Settings,
-  Shield,
-  Users,
-} from 'lucide-react'
+import { IdCard } from 'lucide-react'
 
-import type { AdminNavItem } from '@/app/types'
+import type { PrimaryNavItem } from '@/app/types'
+
+import {
+  AccountsNavIcon,
+  BillingNavIcon,
+  DashboardNavIcon,
+  DocumentLibraryNavIcon,
+  HelpSupportNavIcon,
+  LogsHistoryNavIcon,
+  MappingNavIcon,
+  ProductsNavIcon,
+  ReleasesNavIcon,
+  UpdateManagerNavIcon,
+} from '@/app/components/layout/icons/navigation-icons'
 
 export const APP_NAME = 'XSPONSE Administration'
 
-export const ADMIN_NAVIGATION: AdminNavItem[] = [
+export const LOGGED_IN_ROLE = 'Administrator'
+
+export const PRIMARY_NAVIGATION: PrimaryNavItem[] = [
   {
     label: 'Dashboard',
-    href: '/',
-    icon: Gauge,
+    href: '/dashboard',
+    icon: DashboardNavIcon,
+  },
+  {
+    label: 'Accounts',
+    icon: AccountsNavIcon,
+    children: [],
+  },
+  {
+    label: 'Products',
+    icon: ProductsNavIcon,
+    children: [],
+  },
+  {
+    label: 'Billing & Licenses',
+    icon: BillingNavIcon,
+    children: [],
+  },
+  {
+    label: 'Document Library',
+    href: '/document-library',
+    icon: DocumentLibraryNavIcon,
+  },
+  {
+    label: 'Update Manager',
+    href: '/update-manager',
+    icon: UpdateManagerNavIcon,
+  },
+  {
+    label: 'Mapping',
+    href: '/e-mapping',
+    icon: MappingNavIcon,
   },
   {
     label: 'Badge Profiles',
     href: '/badge-profiles',
-    icon: BadgeCheck,
-    disabled: true,
-    badge: 'Soon',
+    icon: IdCard,
+    matchPaths: ['/badge-profiles'],
   },
   {
-    label: 'Badge Groups',
-    href: '/badge-groups',
-    icon: Shield,
-    disabled: true,
-    badge: 'Soon',
+    label: 'Logs & History',
+    href: '/logs-history',
+    icon: LogsHistoryNavIcon,
   },
   {
-    label: 'Devices',
-    href: '/devices',
-    icon: MonitorSmartphone,
-    disabled: true,
-    badge: 'Soon',
+    label: 'Releases',
+    href: '/releases/release-notes',
+    icon: ReleasesNavIcon,
+    matchPaths: ['/releases'],
   },
   {
-    label: 'Geofences',
-    href: '/geofences',
-    icon: MapPinned,
-    disabled: true,
-    badge: 'Soon',
-  },
-  {
-    label: 'Users',
-    href: '/users',
-    icon: Users,
-    disabled: true,
-    badge: 'Soon',
-  },
-  {
-    label: 'Administration',
-    href: '/administration',
-    icon: Settings,
-    disabled: true,
-    badge: 'Soon',
+    label: 'Help & Support',
+    href: '/help-support',
+    icon: HelpSupportNavIcon,
   },
 ]
+
+export const ADMIN_NAVIGATION = PRIMARY_NAVIGATION.filter(
+  (item): item is PrimaryNavItem & { href: string } => Boolean(item.href),
+).map((item) => ({
+  label: item.label,
+  href: item.href,
+  icon: item.icon,
+}))

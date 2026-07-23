@@ -26,6 +26,13 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-default-100: var(--default-100);
+  --color-default-200: var(--default-200);
+  --color-default-400: var(--default-400);
+  --color-default-500: var(--default-500);
+  --color-default-800: var(--default-800);
+  --color-shell-nav: var(--shell-nav);
+  --color-shell-nav-item: var(--shell-nav-item);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -35,19 +42,19 @@
 :root {
   --radius: 0.5rem;
   --background: #ffffff;
-  --foreground: #18181b;
+  --foreground: #111827;
   --card: #ffffff;
-  --card-foreground: #18181b;
+  --card-foreground: #111827;
   --popover: #ffffff;
-  --popover-foreground: #18181b;
-  --primary: #e11d48;
+  --popover-foreground: #111827;
+  --primary: #ee4143;
   --primary-foreground: #ffffff;
   --secondary: #f4f4f5;
-  --secondary-foreground: #18181b;
+  --secondary-foreground: #111827;
   --muted: #f4f4f5;
   --muted-foreground: #71717a;
   --accent: #f4f4f5;
-  --accent-foreground: #18181b;
+  --accent-foreground: #111827;
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
   --success: #22c55e;
@@ -56,7 +63,14 @@
   --warning-foreground: #92400e;
   --border: #e5e7eb;
   --input: #e5e7eb;
-  --ring: #e11d48;
+  --ring: #ee4143;
+  --default-100: #f4f4f5;
+  --default-200: #e4e4e7;
+  --default-400: #9ca3af;
+  --default-500: #6b7280;
+  --default-800: #1f2937;
+  --shell-nav: #f9fafb;
+  --shell-nav-item: #111827;
 }
 
 @layer base {
@@ -78,9 +92,17 @@
       'Helvetica Neue',
       Arial,
       sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
   }
 
   #root {
     min-height: 100vh;
+  }
+}
+
+@layer components {
+  .shell-container {
+    @apply w-full px-[15px] md:px-6;
   }
 }

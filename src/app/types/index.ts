@@ -11,15 +11,28 @@ export type PageMeta = {
   description?: string
 }
 
+export type PrimaryNavChild = {
+  label: string
+  href: string
+}
+
+export type PrimaryNavItem = {
+  label: string
+  href?: string
+  icon: ComponentType<{ className?: string }>
+  children?: PrimaryNavChild[]
+  matchPaths?: string[]
+}
+
+export type BreadcrumbItem = {
+  label: string
+  href?: string
+}
+
 export type AdminNavItem = {
   label: string
   href?: string
   icon: ComponentType<{ className?: string }>
   disabled?: boolean
   badge?: string
-}
-
-export type BreadcrumbItem = {
-  label: string
-  href?: string
 }
