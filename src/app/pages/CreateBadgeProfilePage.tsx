@@ -109,12 +109,14 @@ function FormSectionCard({
   children,
   compact = false,
   contentClassName,
+  headerClassName,
 }: {
   title: string
   description: string
   children: ReactNode
   compact?: boolean
   contentClassName?: string
+  headerClassName?: string
 }) {
   return (
     <div className="rounded-md border border-border bg-card text-card-foreground shadow-sm">
@@ -122,6 +124,7 @@ function FormSectionCard({
         className={cn(
           'flex flex-col border-b border-border px-4',
           compact ? 'space-y-1 py-3' : 'space-y-1.5 py-4',
+          headerClassName,
         )}
       >
         <p className="text-xl font-semibold text-foreground">{title}</p>
@@ -709,78 +712,109 @@ export function CreateBadgeProfilePage() {
   }
 
   return (
-    <main className="pb-28">
-      <Link
-        to="/badge-profiles"
-        className="mb-2 inline-flex items-center text-sm font-medium text-primary transition-colors hover:text-primary/80"
-      >
-        ← Back to Badge Profiles
-      </Link>
-
-      <PageHeader
-        className="gap-2"
-        title={isEditMode ? 'Edit Badge Profile' : 'Create Badge Profile'}
-        description="Create and configure a badge profile used by XSPONSE wearable badges. The profile settings will be serialized into the badge configuration payload after saving."
-      />
-
-      <div className="mt-3 space-y-4">
-        <FormSectionCard
-          compact
-          title="General Information"
-          description="Basic information used to identify and manage the badge profile."
+    <main className="flex min-h-[calc(100dvh-11rem)] flex-col">
+      <div className="shrink-0">
+        <Link
+          to="/badge-profiles"
+          className="mb-2 inline-flex items-center text-sm font-medium text-primary transition-colors hover:text-primary/80"
         >
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <FormField label="Profile Name" htmlFor="profile-name" required>
-              <input
-                id="profile-name"
-                type="text"
-                value={profileName}
-                onChange={(event) => setProfileName(event.target.value)}
-                placeholder="Enter Profile Name"
-                className={INPUT_CLASS_NAME}
-              />
-            </FormField>
+          ← Back to Badge Profiles
+        </Link>
 
-            <FormField label="Badge Group" htmlFor="badge-group" required>
-              <Combobox
-                options={[...BADGE_GROUP_SELECT_OPTIONS]}
-                value={badgeGroupId}
-                onValueChange={setBadgeGroupId}
-                placeholder="Select Badge Group"
-                searchPlaceholder="Search badge groups..."
-                emptyMessage="No badge groups found."
-                className="h-10 w-full"
-              />
-            </FormField>
+        <PageHeader
+          className="gap-2"
+          title={isEditMode ? 'Edit Badge Profile' : 'Create Badge Profile'}
+          description="Create and configure a badge profile used by XSPONSE wearable badges. The profile settings will be serialized into the badge configuration payload after saving."
+        />
+      </div>
 
-            <FormField label="Status" htmlFor="badge-profile-status">
-              <BadgeProfileStatusSelect value={status} onChange={setStatus} />
-            </FormField>
+      <div className="mt-3 grid flex-1 grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,35fr)_minmax(0,65fr)] lg:gap-5">
+        <div className="h-fit lg:sticky lg:top-8 lg:max-h-[calc(100dvh-7rem)] lg:self-start lg:overflow-y-auto">
+          <FormSectionCard
+            compact
+            headerClassName="space-y-0.5 py-2.5"
+            contentClassName="space-y-2.5 p-3 pt-0"
+            title="General Information"
+            description="Basic information used to identify and manage the badge profile."
+          >
+            <div className="grid grid-cols-1 gap-2.5">
+              <FormField
+                label="Profile Name"
+                htmlFor="profile-name"
+                required
+                className="space-y-1.5"
+              >
+                <input
+                  id="profile-name"
+                  type="text"
+                  value={profileName}
+                  onChange={(event) => setProfileName(event.target.value)}
+                  placeholder="Enter Profile Name"
+                  className={INPUT_CLASS_NAME}
+                />
+              </FormField>
 
-            <FormField label="Badge Profile ID" htmlFor="badge-profile-id">
-              <input
-                id="badge-profile-id"
-                type="text"
-                disabled
-                readOnly
-                value={badgeProfileId}
-                placeholder="Automatically generated after saving."
-                className={READONLY_INPUT_CLASS_NAME}
-              />
-            </FormField>
-          </div>
+              <FormField
+                label="Badge Group"
+                htmlFor="badge-group"
+                required
+                className="space-y-1.5"
+              >
+                <Combobox
+                  options={[...BADGE_GROUP_SELECT_OPTIONS]}
+                  value={badgeGroupId}
+                  onValueChange={setBadgeGroupId}
+                  placeholder="Select Badge Group"
+                  searchPlaceholder="Search badge groups..."
+                  emptyMessage="No badge groups found."
+                  className="h-10 w-full"
+                />
+              </FormField>
 
-          <FormField label="Description" htmlFor="profile-description">
-            <textarea
-              id="profile-description"
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              placeholder="Enter Profile Description"
-              rows={3}
-              className={TEXTAREA_CLASS_NAME}
-            />
-          </FormField>
-        </FormSectionCard>
+              <FormField
+                label="Status"
+                htmlFor="badge-profile-status"
+                className="space-y-1.5"
+              >
+                <BadgeProfileStatusSelect value={status} onChange={setStatus} />
+              </FormField>
+
+              <FormField
+                label="Badge Profile ID"
+                htmlFor="badge-profile-id"
+                className="space-y-1.5"
+              >
+                <input
+                  id="badge-profile-id"
+                  type="text"
+                  disabled
+                  readOnly
+                  value={badgeProfileId}
+                  placeholder="Automatically generated after saving."
+                  className={READONLY_INPUT_CLASS_NAME}
+                />
+              </FormField>
+
+              <FormField
+                label="Description"
+                htmlFor="profile-description"
+                className="space-y-1.5"
+              >
+                <textarea
+                  id="profile-description"
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                  placeholder="Enter Profile Description"
+                  rows={3}
+                  className={cn(
+                    TEXTAREA_CLASS_NAME,
+                    'min-h-[4.5rem] max-h-36 resize-y py-1.5 leading-snug',
+                  )}
+                />
+              </FormField>
+            </div>
+          </FormSectionCard>
+        </div>
 
         <FormSectionCard
           compact
@@ -797,8 +831,8 @@ export function CreateBadgeProfilePage() {
         </FormSectionCard>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur-lg">
-        <div className="shell-container flex flex-wrap items-center justify-between gap-3 py-4">
+      <div className="mt-6 shrink-0 border-t border-border bg-card pt-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <Button
             type="button"
             variant="secondary"

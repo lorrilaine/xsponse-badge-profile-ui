@@ -78,6 +78,21 @@ export const BADGE_CONFIGURATION_SECTIONS = [
 export const DEFAULT_BADGE_CONFIGURATION_SECTION_ID: BadgeConfigurationSectionId =
   'beacon-settings'
 
+export const BADGE_CONFIGURATION_TOGGLE_SECTION_IDS = [
+  'alert-mode-1',
+  'alert-mode-2',
+  'alert-mode-3',
+  'clear-button',
+] as const satisfies ReadonlyArray<BadgeConfigurationSectionId>
+
+export function badgeConfigurationSectionHasToggleHeader(
+  sectionId: BadgeConfigurationSectionId,
+) {
+  return BADGE_CONFIGURATION_TOGGLE_SECTION_IDS.includes(
+    sectionId as (typeof BADGE_CONFIGURATION_TOGGLE_SECTION_IDS)[number],
+  )
+}
+
 export function getBadgeConfigurationSection(sectionId: BadgeConfigurationSectionId) {
   return BADGE_CONFIGURATION_SECTIONS.find((section) => section.id === sectionId)
 }

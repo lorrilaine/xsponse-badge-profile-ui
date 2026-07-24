@@ -4,10 +4,11 @@ import {
   CLEAR_BUTTON_ENABLED_FIELD,
   CLEAR_BUTTON_NUMERIC_FIELDS,
 } from '@/app/features/badge-profiles/clear-button-settings-fields'
+import { getBadgeConfigurationSection } from '@/app/features/badge-profiles/badge-profile-form-sections'
 import { BadgeProfileConfigFieldGrid } from '@/app/features/badge-profiles/components/BadgeProfileConfigFieldGrid'
 import { BadgeProfileNumericField } from '@/app/features/badge-profiles/components/BadgeProfileNumericField'
 import { BadgeProfileSelectField } from '@/app/features/badge-profiles/components/BadgeProfileSelectField'
-import { BadgeProfileSwitchField } from '@/app/features/badge-profiles/components/BadgeProfileSwitchField'
+import { BadgeProfileToggleSectionHeader } from '@/app/features/badge-profiles/components/BadgeProfileToggleSectionHeader'
 
 type ClearButtonSettingsSectionProps = {
   values: ClearButtonSettingsValues
@@ -33,45 +34,47 @@ export function ClearButtonSettingsSection({
   errors,
 }: ClearButtonSettingsSectionProps) {
   const clearButtonEnabled = values.ClearButtonSettingEnabled
+  const section = getBadgeConfigurationSection('clear-button')
 
   return (
-    <BadgeProfileConfigFieldGrid layout="two-column">
-      <BadgeProfileSwitchField
-        id={CLEAR_BUTTON_ENABLED_FIELD.id}
-        name={CLEAR_BUTTON_ENABLED_FIELD.id}
-        label={CLEAR_BUTTON_ENABLED_FIELD.label}
-        help={CLEAR_BUTTON_ENABLED_FIELD.help}
-        checked={clearButtonEnabled}
-        onCheckedChange={onEnabledChange}
+    <>
+      <BadgeProfileToggleSectionHeader
+        title={section?.title ?? 'Clear Button Settings'}
+        description={section?.description ?? ''}
+        enabledField={CLEAR_BUTTON_ENABLED_FIELD}
+        enabled={clearButtonEnabled}
+        onEnabledChange={onEnabledChange}
       />
 
-      <BadgeProfileSelectField
-        id={CLEAR_BUTTON_ACTIVATION_TYPE_FIELD.id}
-        name={CLEAR_BUTTON_ACTIVATION_TYPE_FIELD.id}
-        label={CLEAR_BUTTON_ACTIVATION_TYPE_FIELD.label}
-        help={CLEAR_BUTTON_ACTIVATION_TYPE_FIELD.help}
-        value={values.ClearButtonSettingType}
-        options={[...CLEAR_BUTTON_ACTIVATION_TYPE_FIELD.options]}
-        onChange={onTypeChange}
-        disabled={!clearButtonEnabled}
-      />
-
-      {CLEAR_BUTTON_NUMERIC_FIELDS.map((field) => (
-        <BadgeProfileNumericField
-          key={field.name}
-          id={field.name}
-          name={field.name}
-          label={field.label}
-          help={field.help}
-          value={values[field.name]}
-          onChange={(value) => onNumericChange(field.name, value)}
-          onBlur={() => onFieldBlur?.(field.name)}
-          unit={field.unit}
-          required={clearButtonEnabled}
+      <BadgeProfileConfigFieldGrid layout="two-column">
+        <BadgeProfileSelectField
+          id={CLEAR_BUTTON_ACTIVATION_TYPE_FIELD.id}
+          name={CLEAR_BUTTON_ACTIVATION_TYPE_FIELD.id}
+          label={CLEAR_BUTTON_ACTIVATION_TYPE_FIELD.label}
+          help={CLEAR_BUTTON_ACTIVATION_TYPE_FIELD.help}
+          value={values.ClearButtonSettingType}
+          options={[...CLEAR_BUTTON_ACTIVATION_TYPE_FIELD.options]}
+          onChange={onTypeChange}
           disabled={!clearButtonEnabled}
-          error={errors?.[field.name]}
         />
-      ))}
-    </BadgeProfileConfigFieldGrid>
+
+        {CLEAR_BUTTON_NUMERIC_FIELDS.map((field) => (
+          <BadgeProfileNumericField
+            key={field.name}
+            id={field.name}
+            name={field.name}
+            label={field.label}
+            help={field.help}
+            value={values[field.name]}
+            onChange={(value) => onNumericChange(field.name, value)}
+            onBlur={() => onFieldBlur?.(field.name)}
+            unit={field.unit}
+            required={clearButtonEnabled}
+            disabled={!clearButtonEnabled}
+            error={errors?.[field.name]}
+          />
+        ))}
+      </BadgeProfileConfigFieldGrid>
+    </>
   )
 }

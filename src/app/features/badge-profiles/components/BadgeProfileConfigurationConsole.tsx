@@ -1,7 +1,10 @@
 import type { ReactNode } from 'react'
 
 import type { BadgeConfigurationSectionId } from '@/app/features/badge-profiles/badge-profile-form-sections'
-import { getBadgeConfigurationSection } from '@/app/features/badge-profiles/badge-profile-form-sections'
+import {
+  badgeConfigurationSectionHasToggleHeader,
+  getBadgeConfigurationSection,
+} from '@/app/features/badge-profiles/badge-profile-form-sections'
 import { BadgeProfileConfigurationNavigator } from '@/app/features/badge-profiles/components/BadgeProfileConfigurationNavigator'
 import { cn } from '@/app/utils'
 
@@ -29,8 +32,8 @@ export function BadgeProfileConfigurationConsole({
         />
       </aside>
 
-      <div className="min-w-0 flex-1 lg:pl-5 xl:pl-6">
-        {activeSection ? (
+      <div className="min-w-0 flex-1 overflow-visible lg:pl-5 xl:pl-6">
+        {activeSection && !badgeConfigurationSectionHasToggleHeader(activeSectionId) ? (
           <div className="mb-4 border-b border-border pb-3">
             <h3 className="text-base font-semibold text-foreground">
               {activeSection.title}
