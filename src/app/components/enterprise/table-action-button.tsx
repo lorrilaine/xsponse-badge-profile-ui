@@ -14,6 +14,8 @@ const tableActionButtonVariants = cva(
     variants: {
       variant: {
         info: 'bg-info/10 text-info hover:bg-info/80 hover:text-info-foreground',
+        assign:
+          'bg-assign-background text-assign hover:bg-assign-background-hover hover:text-assign-hover active:bg-assign-background-active active:text-assign-active disabled:bg-assign-disabled-background disabled:text-assign-disabled disabled:opacity-100',
         warning:
           'bg-warning/10 text-warning hover:bg-warning/80 hover:text-warning-foreground',
         destructive:

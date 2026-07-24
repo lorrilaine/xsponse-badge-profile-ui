@@ -37,7 +37,7 @@ export function BadgeProfileManagementActions({
       {permissions.canAssignBadgeProfile ? (
         <TableActionButton
           label="Assign Profile to Badge"
-          variant="info"
+          variant="assign"
           onClick={() => onAssign(profile)}
         >
           <Link2 className="size-5" />
