@@ -31,7 +31,9 @@ import {
   type BadgeProfileDetail,
 } from '@/app/features/badge-profiles/badge-profile-store-data'
 import { useBadgeProfiles } from '@/app/features/badge-profiles/BadgeProfileProvider'
+import { buildBadgeProfileReviewSummary } from '@/app/features/badge-profiles/badge-profile-review-summary'
 import { BadgeProfileConfigurationConsole } from '@/app/features/badge-profiles/components/BadgeProfileConfigurationConsole'
+import { BadgeProfileReviewSummaryDialog } from '@/app/features/badge-profiles/components/BadgeProfileReviewSummaryDialog'
 import { BadgeProfileStatusSelect } from '@/app/features/badge-profiles/components/BadgeProfileStatusSelect'
 import { AlertMode1SettingsSection } from '@/app/features/badge-profiles/components/AlertMode1SettingsSection'
 import { AlertMode2SettingsSection } from '@/app/features/badge-profiles/components/AlertMode2SettingsSection'
@@ -166,6 +168,7 @@ export function CreateBadgeProfilePage() {
   const [description, setDescription] = useState(initialFormState.description)
   const [status, setStatus] = useState<BadgeProfileStatus>(initialFormState.status)
   const [isSaving, setIsSaving] = useState(false)
+  const [reviewSummaryOpen, setReviewSummaryOpen] = useState(false)
   const [beaconSettings, setBeaconSettings] = useState<BeaconSettingsValues>(
     initialFormState.beaconSettings,
   )
@@ -679,6 +682,41 @@ export function CreateBadgeProfilePage() {
   const saveButtonLabel = isEditMode ? 'Update Badge Profile' : 'Save Badge Profile'
   const savingButtonLabel = isEditMode ? 'Updating...' : 'Saving...'
   const badgeProfileId = initialFormState.badgeProfileId
+  const reviewSummarySections = useMemo(
+    () =>
+      buildBadgeProfileReviewSummary({
+        profileName,
+        badgeGroupId,
+        description,
+        status,
+        badgeProfileId,
+        beaconSettings,
+        trackingSettings,
+        statusUpdateSettings,
+        wakeupSettings,
+        alertMode1Settings,
+        alertMode2Settings,
+        alertMode3Settings,
+        clearButtonSettings,
+      }),
+    [
+      alertMode1Settings,
+      alertMode2Settings,
+      alertMode3Settings,
+      badgeGroupId,
+      badgeProfileId,
+      beaconSettings,
+      clearButtonSettings,
+      description,
+      profileName,
+      status,
+      statusUpdateSettings,
+      trackingSettings,
+      wakeupSettings,
+    ],
+  )
+  const reviewSummaryProfileTitle =
+    profileName.trim().length > 0 ? profileName.trim() : 'this badge profile'
 
   if (isEditMode && !existingProfile) {
     return (
@@ -847,6 +885,14 @@ export function CreateBadgeProfilePage() {
               type="button"
               variant="outline"
               className="h-10 px-4 py-[10px]"
+              onClick={() => setReviewSummaryOpen(true)}
+            >
+              Review Summary
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="h-10 px-4 py-[10px]"
               disabled={isSaving}
               onClick={handleSaveDraft}
             >
@@ -864,6 +910,13 @@ export function CreateBadgeProfilePage() {
           </div>
         </div>
       </div>
+
+      <BadgeProfileReviewSummaryDialog
+        open={reviewSummaryOpen}
+        onOpenChange={setReviewSummaryOpen}
+        sections={reviewSummarySections}
+        profileTitle={reviewSummaryProfileTitle}
+      />
     </main>
   )
 }
